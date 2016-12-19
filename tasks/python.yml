@@ -1,15 +1,19 @@
 ---
 
 - include: install.deb.yml
+  become: yes
   when: ansible_os_family == 'Debian'
 
 - include: install.yum.yml
+  become: yes
   when: ansible_os_family == 'RedHat'
 
 - file: state=directory name=/usr/share/python
+  become: yes
 
 - name: Install pip - pt. 1
   copy: src=get-pip.py dest=/usr/share/python/get-pip.py
+  become: yes
 
 - name: Install pip - pt. 2
   shell: "{{python_bin}}{{item}} /usr/share/python/get-pip.py creates={{python_pkg_bin}}/pip{{item}}"
@@ -24,15 +28,18 @@
     PATH: "/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin"
   when: item.changed
   with_items: "{{ python_pip_installed.results }}"
+  become: yes
 
 - name: Install global python packages
   pip: name="{{python_install|join(' ')}}" executable={{python_pkg_bin}}/pip{{item}}
   when: python_install
   with_items: "{{ python_versions }}"
+  become: yes
 
 - name: Install virtualenv
   pip: name="virtualenv" executable={{python_pkg_bin}}/pip{{item}}
   with_items: "{{ python_versions }}"
+  become: yes
 
 - name: Setup virtualenvs
   shell: virtualenv {{item.path}} --python={{item.python|default('python')}}
