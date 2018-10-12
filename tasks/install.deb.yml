@@ -1,4 +1,9 @@
 ---
+- include_vars: proxy_vars.yml
+  when: EXTRA_VAR_PROXY_SERVER_URL is defined
+
+- include_vars: not_proxy_vars.yml
+  when: EXTRA_VAR_PROXY_SERVER_URL is not defined
 
 - include_vars: "{{ansible_distribution}}.yml"
 
@@ -8,6 +13,7 @@
 - name: Add python apt repository
   apt_repository: repo={{python_ppa}} update_cache=yes
   when: python_ppa != False and python_ppa != ""
+  environment: "{{proxy_env}}"
 
 - name: Install python
   apt: name=python{{item}} state=present
