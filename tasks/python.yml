@@ -1,10 +1,10 @@
 ---
 
-- include: install.deb.yml
+- import_tasks: install.deb.yml
   become: yes
   when: ansible_os_family == 'Debian'
 
-- include: install.yum.yml
+- import_tasks: install.yum.yml
   become: yes
   when: ansible_os_family == 'RedHat'
 
@@ -38,6 +38,7 @@
 
 - name: Install virtualenv
   pip: name="virtualenv" executable={{python_pkg_bin}}/pip{{item}}
+  when: not( (python_virtualenvs is undefined) or (python_virtualenvs is none) or (python_virtualenvs | trim == '') )
   with_items: "{{ python_versions }}"
   become: yes
 
