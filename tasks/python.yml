@@ -23,7 +23,12 @@
   become: yes
 
 - name: Update tools
-  pip: name="setuptools virtualenv" state=latest executable=pip{{item.item}}
+  pip:
+    state: latest
+    executable: "pip{{item.item}}"
+    name:
+      - setuptools
+      - virtualenv
   environment:
     PATH: "/usr/local/bin:/bin:/usr/bin:/sbin:/usr/sbin"
   when: item.changed
@@ -31,13 +36,17 @@
   become: yes
 
 - name: Install global python packages
-  pip: name="{{python_install|join(' ')}}" executable={{python_pkg_bin}}/pip{{item}}
-  when: python_install
+  pip:
+    name: "{{ python_install }}"
+    executable: "{{python_pkg_bin}}/pip{{item}}"
+  when: python_install|bool
   with_items: "{{ python_versions }}"
   become: yes
 
 - name: Install virtualenv
-  pip: name="virtualenv" executable={{python_pkg_bin}}/pip{{item}}
+  pip:
+    name: virtualenv
+    executable: "{{python_pkg_bin}}/pip{{item}}"
   when: not( (python_virtualenvs is undefined) or (python_virtualenvs is none) or (python_virtualenvs | trim == '') )
   with_items: "{{ python_versions }}"
   become: yes
@@ -56,4 +65,3 @@
   with_items: "{{ python_virtualenvs }}"
   become_user: "{{item.user|default(python_virtualenv_user)}}"
   when: "python_virtualenv_user is defined"
-
